@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue'
-import { chatState, sendMessage } from '../lib/chat'
+import { chatState, sendMessage, newDraftChat, stopStreaming } from '../lib/chat'
 
 export default defineComponent({
   name: "ChatInput",
@@ -10,7 +10,7 @@ export default defineComponent({
 
     const hasChat = computed(() => !!chatState.current)
     const sending = computed(() => chatState.sending)
-    const disabled = computed(() => !chatState.current || sending.value)
+    const disabled = computed(() => sending.value)
     const canSend = computed(() => !disabled.value && textValue.value.trim().length > 0)
 
     const autoGrow = () => {
@@ -26,6 +26,7 @@ export default defineComponent({
       const content = textValue.value
       textValue.value = ''
       if (textareaRef.value) textareaRef.value.style.height = 'auto'
+      if (!chatState.current) newDraftChat() // démarre un chat depuis l'accueil
       await sendMessage(content)
     }
 
@@ -36,6 +37,9 @@ export default defineComponent({
       }
     }
 
+    // Bouton : envoie, ou interrompt si l'IA répond.
+    const onAction = () => (sending.value ? stopStreaming() : submit())
+
     return {
       textValue,
       textareaRef,
@@ -45,6 +49,7 @@ export default defineComponent({
       canSend,
       autoGrow,
       submit,
+      onAction,
       onKeydown,
     }
   }
@@ -64,14 +69,15 @@ export default defineComponent({
         @keydown="onKeydown"
         :disabled="disabled"
         rows="1"
-        :placeholder="chatState?.current ? 'Entrez votre message...' : 'Créez un nouveau chat pour commencer'"
+        placeholder="Entrez votre message..."
     ></textarea>
 
     <div
-        :class="['send', { disabled: !canSend }]"
-        @click="submit"
+        :class="['send', { disabled: !sending && !canSend }]"
+        :title="sending ? 'Interrompre' : 'Envoyer'"
+        @click="onAction"
     >
-      <i v-if="sending" class="fa-solid fa-spinner fa-spin icon-color-secondary" />
+      <i v-if="sending" class="fa-solid fa-stop icon-color-secondary" />
       <i v-else class="fa-solid fa-paper-plane icon-color-secondary" />
     </div>
   </div>

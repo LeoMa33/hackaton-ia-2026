@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted, computed } from 'vue'
 import HistoryItem from './HistoryItem.vue'
+import TokenRate from './TokenRate.vue'
 import { apiFetch } from '../lib/api'
 import { isAuthenticated } from '../lib/auth'
 import { chatState, selectChat, clearChat, newDraftChat } from '../lib/chat'
@@ -10,7 +11,8 @@ type Chat = { id: number; title: string }
 export default defineComponent({
   name: "ChatListe",
   components: {
-    HistoryItem
+    HistoryItem,
+    TokenRate
   },
   setup() {
     const chats = ref<Chat[]>([])
@@ -98,36 +100,11 @@ export default defineComponent({
           @delete="deleteChat(item.id)"
       />
     </div>
-    <div class="token-rate">
-      <h1>Changer de plan d'abonnement</h1>
-      <p>Votre abonnement actuel est limité en token. (100 000/j)</p>
-      <div class="upgrade-plan">
-        <p>Passer au niveau supérieur</p>
-      </div>
-    </div>
+    <TokenRate />
   </div>
 </template>
 
 <style scoped>
-
-.token-rate {
-  background-color: rgb(255 255 255 / 0.6);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  border-radius: 5px;
-  padding: 5px;
-  box-shadow: 0 0 6px 5px rgba(32,122,112,0.02);
-
-  & h1 {
-    font-size: 16px;
-    margin: 0;
-  }
-  & p {
-    font-size: 12px;
-    margin: 0;
-  }
-}
 
 .spacer {
   align-self: center;
@@ -159,18 +136,6 @@ export default defineComponent({
   & i {
     font-size: 18px;
   }
-}
-
-.upgrade-plan {
-  border-radius: 5px;
-  background-color: #207A70;
-  color: white;
-  height: 40px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
 }
 
 .history {
