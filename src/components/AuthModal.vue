@@ -6,6 +6,7 @@ export default defineComponent({
   name: 'AuthModal',
   setup() {
     const mode = ref<'login' | 'register'>('login');
+    const username = ref('');
     const email = ref('');
     const password = ref('');
     const passwordConfirm = ref('');
@@ -27,6 +28,10 @@ export default defineComponent({
         localError.value = 'Email et mot de passe requis';
         return;
       }
+      if (mode.value === 'register' && !username.value) {
+        localError.value = "Nom d'utilisateur requis";
+        return;
+      }
       if (mode.value === 'register' && password.value !== passwordConfirm.value) {
         localError.value = 'Les mots de passe ne correspondent pas';
         return;
@@ -35,8 +40,9 @@ export default defineComponent({
         if (mode.value === 'login') {
           await login(email.value, password.value);
         } else {
-          await register(email.value, password.value);
+          await register(username.value, email.value, password.value);
         }
+        username.value = '';
         email.value = '';
         password.value = '';
         passwordConfirm.value = '';
@@ -47,6 +53,7 @@ export default defineComponent({
 
     return {
       mode,
+      username,
       email,
       password,
       passwordConfirm,
@@ -82,6 +89,17 @@ export default defineComponent({
       </div>
 
       <form @submit.prevent="submit" class="form">
+        <label v-if="mode === 'register'">
+          <span>Nom d'utilisateur</span>
+          <input
+            v-model="username"
+            type="text"
+            autocomplete="username"
+            required
+            :disabled="loading"
+          />
+        </label>
+
         <label>
           <span>Email</span>
           <input

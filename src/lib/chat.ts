@@ -82,16 +82,14 @@ export async function sendMessage(content: string): Promise<{ persisted: boolean
   chatState.error = null;
 
   try {
-    if (isDraft) {
-      const res = await apiFetch<SendResponse>('/chats', {
-        method: 'POST',
-        body: JSON.stringify({ message: trimmed }),
-      });
-      chat.id = res.chat_id;
-      chat.messages.push({ role: 'assistant', content: res.response });
-      return { persisted: true };
-    }
-    return { persisted: false };
+    const path = isDraft ? '/chats' : `/chats/${chat.id}`;
+    const res = await apiFetch<SendResponse>(path, {
+      method: 'POST',
+      body: JSON.stringify({ message: trimmed }),
+    });
+    chat.id = res.chat_id;
+    chat.messages.push({ role: 'assistant', content: res.response });
+    return { persisted: isDraft };
   } catch (e) {
     chatState.error = e instanceof Error ? e.message : "Erreur d'envoi";
     chat.messages.pop();

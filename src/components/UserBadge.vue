@@ -2,25 +2,14 @@
 import { defineComponent, computed } from 'vue';
 import { authState, isAuthenticated, logout } from '../lib/auth';
 
-function parseEmailFromJwt(token: string | null): string | null {
-  if (!token) return null;
-  try {
-    const payload = token.split('.')[1];
-    if (!payload) return null;
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return decoded.email ?? decoded.sub ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export default defineComponent({
   name: 'UserBadge',
   setup() {
     const connected = isAuthenticated;
-    const email = computed(() => parseEmailFromJwt(authState.token));
+    const email = computed(() => authState.user?.username ?? authState.user?.email ?? null);
     const avatar = computed(() => {
-      const seed = email.value ?? 'guest';
+      if (authState.user?.avatar_url) return authState.user.avatar_url;
+      const seed = authState.user?.email ?? 'guest';
       return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(seed)}`;
     });
     return { connected, email, avatar, logout };
