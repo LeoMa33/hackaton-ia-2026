@@ -1,0 +1,87 @@
+---
+// src/pages/index.astro
+import MainLayout from '../layouts/MainLayout.astro';
+import ChatListe from '../components/ChatListe.vue';
+import ChatFenetre from '../components/ChatFenetre.vue';
+---
+
+<MainLayout titre="Aura">
+
+	<aside class="sidebar-gauche">
+		<ChatListe client:load />
+	</aside>
+
+	<main class="zone-chat-milieu animated-gradient">
+		<ChatFenetre client:load />
+	</main>
+
+</MainLayout>
+
+<style>
+	.sidebar-gauche {
+		border-radius: 5px;
+		display: flex;
+		flex-direction: column;
+		width: 300px;
+		background-color: #F9FAFC;
+		overflow-y: auto;
+		box-shadow: 0 0 6px 5px rgba(32,122,112,0.02);
+	}
+
+	.zone-chat-milieu {
+		border-radius: 5px;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 0 0 6px 5px rgba(32,122,112,0.02);
+	}
+
+	@property --x1 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+	@property --y1 { syntax: '<percentage>'; inherits: false; initial-value: 20%; }
+	@property --op1 { syntax: '<number>'; inherits: false; initial-value: 0.3; }
+
+	@property --x2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+	@property --y2 { syntax: '<percentage>'; inherits: false; initial-value: 80%; }
+	@property --op2 { syntax: '<number>'; inherits: false; initial-value: 0.2; }
+
+	.animated-gradient {
+		width: 100vw;
+		height: calc(100vh - 75px);
+		background-color: #ffffff;
+
+		background-image:
+			radial-gradient(circle at var(--x1) var(--y1), rgba(191, 223, 220, var(--op1)) 0%, rgba(255, 255, 255, 0) 80%),
+			radial-gradient(circle at var(--x2) var(--y2), rgba(191, 223, 220, var(--op2)) 0%, rgba(255, 255, 255, 0) 80%);
+
+		animation:
+			driftFirst 47s infinite alternate ease-in-out,
+			driftSecond 61s infinite alternate ease-in-out;
+	}
+
+	@keyframes driftFirst {
+		0% {
+			--x1: 10%; --y1: 20%; --op1: 0.35;
+		}
+		33% {
+			--x1: 45%; --y1: 75%; --op1: 0.15;
+		}
+		66% {
+			--x1: 80%; --y1: 30%; --op1: 0.40;
+		}
+		100% {
+			--x1: 30%; --y1: 60%; --op1: 0.20;
+		}
+	}
+
+	@keyframes driftSecond {
+		0% {
+			--x2: 90%; --y2: 80%; --op2: 0.10;
+		}
+		50% {
+			--x2: 25%; --y2: 40%; --op2: 0.30;
+		}
+		100% {
+			--x2: 70%; --y2: 15%; --op2: 0.05;
+		}
+	}
+</style>
